@@ -4,27 +4,32 @@ const products = [
   {
     id: 153,
     name: 'kurtka skórzana',
-    category: 'kurtka'
+    category: 'kurtka',
+    sizes: ['XS', 'S', 'M', 'L', 'XL'],
   },{
     id: 242,
     name: 'ciepła bluza z kapturem',
-    category: 'bluza'
+    category: 'bluza',
+    sizes: ['S', 'M', 'L'],
   }, {
     id: 343,
     name: 'rurki jeansowe',
-    category: 'spodnie'
+    category: 'spodnie',
+    sizes: ['XS', 'L', 'XL'],
   },
 ];
 const categories = ['kurtka', 'bluza', 'spodnie', 'bielizna'];
+const sizes = ['XS', 'S', 'M', 'L', 'XL'];
 
 export default class App extends Component {
 
   state = {
     activeCat: '',
+    activeSizes: [],
   }
 
-  updateActiveCat(event) {
-    this.setState({activeCat: event.target.value});
+  updateActiveCat(category) {
+    this.setState({activeCat: category});
   }
 
   renderCategories() {
@@ -32,12 +37,41 @@ export default class App extends Component {
       categories.map((category, key) => {
         return(
           <div key={key}>
-            <input type="radio" id={category} name="contact" value={category} onChange={(e) => this.updateActiveCat(e)}/>
+            <input type="radio" id={category} name="contact" value={category} onChange={(e) => this.updateActiveCat(e.target.value)}/>
             <label htmlFor={category}>{category}</label>
           </div>
         )
       })
     );
+  }
+
+  renderSizes() {
+    return (
+      sizes.map((size, key) =>
+        <div key={key}>
+          <input type="checkbox" id={size} value={size} onChange={(e)=>this.updateActiveSizes(e.target.value)}/>
+          <label htmFor={size}>{size}</label>
+        </div>
+      )
+    )
+  }
+
+  updateActiveSizes(size) {
+    const activeSizes = this.state.activeSizes;
+
+    if (activeSizes.includes(size)) {
+      let i = activeSizes.indexOf(size);
+      this.setState({
+        activeSizes: [
+          ...activeSizes.slice(0, i), 
+          ...activeSizes.slice(i+1)
+        ]
+      })
+    } else {
+      this.setState({
+        activeSizes: [...activeSizes, size]
+      })
+    }
   }
 
   renderProducts() {
@@ -46,9 +80,6 @@ export default class App extends Component {
         return product.category.indexOf(this.state.activeCat) !== -1
       }
     )
-
-    console.log(filteredProducts)
-
     return (
       filteredProducts.map((product)=> {
         return <div key={product.id}>{product.name}</div>
@@ -57,17 +88,22 @@ export default class App extends Component {
   }
 
   render() {
-
-
-
     return (
       <div className="container">
         <div className="row">
           <div className="col-sm-6">
-            Active cat state is: {this.state.activeCat}
-            <form>
-              {this.renderCategories()}
-            </form>
+            <div className="filters__box">
+              Active category is: {this.state.activeCat}
+              <form>
+                {this.renderCategories()}
+              </form>
+            </div>
+            <div className="filters__box">
+              Active sizes are: {this.state.activeSizes.join(', ')}
+              <form>
+                {this.renderSizes()}
+              </form>
+            </div>
           </div>
           <div className="col-sm-6">
             {this.renderProducts()}
